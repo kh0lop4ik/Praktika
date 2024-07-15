@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang = "ru">
+<html>
+<head>
+<meta charset = "UTF-8">
+<link rel = "stylesheet" type="text/css" href="/home/kholopovsi/Desktop/Praktika/Ashalet/style.css">
+<title>Задание 1</title>
+<body>
+<h1>Сигнал и его спектр в Python</h1>
+<h2>Код программы:</h2>
+<header>
+<p>
+<zz>import</zz> <vv>matplotlib</vv>.<vv>pyplot</vv> <zz>as</zz> <vv>plt</vv> <br>
+<zz>import</zz> <vv>numpy</vv> <zz>as</zz> <vv>np</vv> <br>
+<zz>from</zz> <vv>scipy</vv>.<vv>signal</vv> <zz>import</zz> <cc>correlate</cc> <br>
+<xx>#функция отрисовки графика сигнала, его спетра, а также его АКФ</xx> <br>
+<bb>def</bb> <cc>plot_signal_and_fft</cc><mm>(</mm><nn>filename</nn><mm>)</mm>: <br>
+    <xx>&nbsp &nbsp &nbsp &nbsp #чтение данных из текстового файла</xx> <br>
+    <nn>&nbsp &nbsp &nbsp &nbsp data</nn> = <cc>np.loadtxt</cc><mm>(</mm><nn>filename</nn><mm>)</mm> <br>
+    <xx>&nbsp &nbsp &nbsp &nbsp #определение временной оси</xx> <br>
+    <nn>&nbsp &nbsp &nbsp &nbsp time</nn> = <vv>np</vv>.<cc>arange</cc><mm>(</mm><cc>len</cc><zz>(</zz><nn>data</nn><zz>)</zz><mm>)</mm> <br>
+    <xx>&nbsp &nbsp &nbsp &nbsp #вычисление АКФ</xx> <br>
+    <nn>&nbsp &nbsp &nbsp &nbsp autocorr</nn> = <cc>correlate</cc><mm>(</mm><nn>data</nn>, <nn>data</nn>, <nn>mode</nn> = <aa>"full"</aa><mm>)</mm> <br>
+    <xx>&nbsp &nbsp &nbsp &nbsp #используем только положительные смещения</xx> <br>
+    <nn>&nbsp &nbsp &nbsp &nbsp autocorr</nn> = <nn>autocorr</nn><mm>[</mm><cc>len</cc><zz>(</zz><nn>data</nn><zz>)</zz>-<ss>1</ss>:<mm>]</mm> <br>
+    <nn>&nbsp &nbsp &nbsp &nbsp lags</nn> = <vv>np</vv>.<cc>arange</cc><mm>(</mm><cc>len</cc><zz>(</zz><nn>autocorr</nn><zz>)</zz><mm>)</mm>/<ss>44100</ss> <xx>#время запаздывания</xx> <br>
+    <xx>&nbsp &nbsp &nbsp &nbsp #создаем симметричную ось времени</xx> <br>
+    <nn>&nbsp &nbsp &nbsp &nbsp symmetric_lags</nn> = <vv>np</vv>.<cc>concatenate</cc><mm>(</mm><zz>(</zz>-<nn>lags</nn><bb>[</bb>::-<ss>1</ss><bb>]</bb>,<nn>lags</nn><bb>[</bb><ss>1</ss>:<bb>]</bb><zz>)</zz><mm>)</mm> <br>
+    <nn>&nbsp &nbsp &nbsp &nbsp symmetric_autocorr</nn> = <vv>np</vv>.<cc>concatenate</cc><mm>(</mm><zz>(</zz><nn>autocorr</nn><bb>[</bb>::-<ss>1</ss><bb>]</bb>,<nn>autocorr</nn><bb>[</bb><ss>1</ss>::<bb>]</bb><zz>)</zz><mm>)</mm> <br>
+    <xx>&nbsp &nbsp &nbsp &nbsp #создание окна для отрисовки трех графиков</xx> <br>
+    <vv>&nbsp &nbsp &nbsp &nbsp plt</vv>.<cc>figure</cc><mm>(</mm><nn>figsize</nn>=<zz>(</zz><ss>12</ss>,<ss>9</ss><zz>)</zz><mm>)</mm> <br>
+    <xx>&nbsp &nbsp &nbsp &nbsp #график сигнала во временной области</xx> <br>
+    <vv>&nbsp &nbsp &nbsp &nbsp plt</vv>.<cc>subplot</cc><mm>(</mm><ss>3</ss>,<ss>1</ss>,<ss>1</ss><mm>)</mm> <br>
+    <vv>&nbsp &nbsp &nbsp &nbsp plt</vv>.<cc>plot</cc><mm>(</mm><nn>time</nn>,<nn>data</nn><mm>)</mm> <br>
+    <vv>&nbsp &nbsp &nbsp &nbsp plt</vv>.<cc>title</cc><mm>(</mm><aa>"Сигнал во временной области"</aa><mm>)</mm> <br>
+    <vv>&nbsp &nbsp &nbsp &nbsp plt</vv>.<cc>xlabel</cc><mm>(</mm><aa>"Время, kT"</aa><mm>)</mm> <br>
+    <vv>&nbsp &nbsp &nbsp &nbsp plt</vv>.<cc>ylabel</cc><mm>(</mm><aa>"Амплитуда"</aa><mm>)</mm> <br>
+    <vv>&nbsp &nbsp &nbsp &nbsp plt</vv>.<cc>grid</cc><mm>(</mm><bb>True</bb><mm>)</mm> <br>
+    <xx>&nbsp &nbsp &nbsp &nbsp #вычисление прямого преобразования Фурье</xx> <br>
+    <nn>&nbsp &nbsp &nbsp &nbsp fft_data</nn> = <vv>np</vv>.<vv>fft</vv>.<cc>fft</cc><mm>(</mm><nn>data</nn><mm>)</mm> <br>
+    <xx>&nbsp &nbsp &nbsp &nbsp #вычисление частот, на которых будет строится спектр</xx> <br>
+    <nn>&nbsp &nbsp &nbsp &nbsp frequencies</nn> = <vv>np</vv>.<vv>fft</vv>.<cc>fftfreq</cc><mm>(</mm><cc>len</cc><zz>(</zz><nn>data</nn><zz>)</zz>,<nn>d</nn> = <ss>1</ss> / <ss>44100</ss><mm>)</mm> <br>
+    <xx>&nbsp &nbsp &nbsp &nbsp #вычисление ампллитуд на соответствующих частотах</xx> <br>
+    <nn>&nbsp &nbsp &nbsp &nbsp amplitude</nn> = <vv>np</vv>.<nn>abs</nn><mm>(</mm><nn>fft_data</nn><mm>)</mm> <br>
+    <xx>&nbsp &nbsp &nbsp &nbsp #график спектра сигнала</xx> <br>
+    <vv>&nbsp &nbsp &nbsp &nbsp plt</vv>.<cc>subplot</cc><mm>(</mm><ss>3</ss>,<ss>1</ss>,<ss>2</ss><mm>)</mm> <br>
+    <vv>&nbsp &nbsp &nbsp &nbsp plt</vv>.<cc>stem</cc><mm>(</mm><nn>frequencies</nn>,<nn>amplitude</nn><mm>)</mm> <br>
+    <vv>&nbsp &nbsp &nbsp &nbsp plt</vv>.<cc>title</cc><mm>(</mm><aa>"АС  сигнала"</aa><mm>)</mm> <br>
+    <vv>&nbsp &nbsp &nbsp &nbsp plt</vv>.<cc>xlabel</cc><mm>(</mm><aa>"Частота, Гц"</aa><mm>)</mm> <br>
+    <vv>&nbsp &nbsp &nbsp &nbsp plt</vv>.<cc>ylabel</cc><mm>(</mm><aa>"Амплитуда"</aa><mm>)</mm> <br>
+    <vv>&nbsp &nbsp &nbsp &nbsp plt</vv>.<cc>xlim</cc><mm>(</mm><ss>0</ss>,<ss>22050</ss><mm>)</mm> <br>
+    <vv>&nbsp &nbsp &nbsp &nbsp plt</vv>.<cc>grid</cc><mm>(</mm><bb>True</bb><mm>)</mm> <br>
+    <xx>&nbsp &nbsp &nbsp &nbsp #график АКФ</xx> <br>
+    <vv>&nbsp &nbsp &nbsp &nbsp plt</vv>.<cc>subplot</cc><mm>(</mm><ss>3</ss>,<ss>1</ss>,<ss>3</ss><mm>)</mm> <br>
+    <vv>&nbsp &nbsp &nbsp &nbsp plt</vv>.<cc>plot</cc><mm>(</mm><nn>symmetric_lags</nn>,<nn>symmetric_autocorr</nn><mm>)</mm> <br>
+    <vv>&nbsp &nbsp &nbsp &nbsp plt</vv>.<cc>title</cc><mm>(</mm><aa>"Автокорреляционная функция сигнала"</aa><mm>)</mm> <br>
+    <vv>&nbsp &nbsp &nbsp &nbsp plt</vv>.<cc>xlabel</cc><mm>(</mm><aa>"Время запазывания, kT"</aa><mm>)</mm> <br>
+    <vv>&nbsp &nbsp &nbsp &nbsp plt</vv>.<cc>ylabel</cc><mm>(</mm><aa>"Амплитуда"</aa><mm>)</mm> <br>
+    <vv>&nbsp &nbsp &nbsp &nbsp plt</vv>.<cc>grid</cc><mm>(</mm><bb>True</bb><mm>)</mm> <br>
+    <vv>&nbsp &nbsp &nbsp &nbsp plt</vv>.<cc>tight_layout</cc><mm>()</mm> <br>
+    <vv>&nbsp &nbsp &nbsp &nbsp plt</vv>.<cc>show</cc><mm>()</mm> <br>
+<nn>filename</nn> = <aa>"signal.txt"</aa> <xx>#имя нашего текстового файла с дискретными отсчетами</xx> <br>
+<cc>plot_signal_and_fft</cc><mm>(</mm><nn>filename</nn><mm>)</mm></p>
+</header>
+<h2>Результат работы программы:</h2>
+<center><img src = "/home/kholopovsi/Desktop/Praktika/Ashalet/img/signal.jpg" style="width: 653px; height: 492px;"></center>
+<header>Как видно, программа работает корректно и правильно рисует графики сигнала, его спектра, а также АКФ.</header>
+</body>
+</html>

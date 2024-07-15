@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang = "ru">
+<html>
+<head>
+<meta charset = "UTF-8">
+<link rel = "stylesheet" type="text/css" href="/home/kholopovsi/Desktop/Praktika/Ashalet/style.css">
+<title>Задание 2</title>
+<body>
+<h1>Фильтрация гармонической суммы с помощью ФНЧ на Python</h1>
+<h2>Код программы:</h2>
+<header>
+<p><zz>import</zz> <vv>numpy</vv> <zz>as</zz> <vv>np</vv> <br>
+<zz>import</zz> <vv>matplotlib</vv>.<vv>pyplot</vv> <zz>as</zz> <vv>plt</vv> <br>
+<zz>from</zz> <vv>scipy</vv>.<vv>fft</vv> <zz>import</zz> <cc>fft</cc>, <cc>ifft</cc>, <cc>fftshift</cc> <br>
+
+<xx># Параметры сигнала</xx> <br>
+<nn>fs</nn> = <ss>44100</ss> <xx># Частота дискретизации</xx> <br>
+<nn>duration</nn> = <ss>1</ss> <xx># Продолжительность сигнала в секундах</xx> <br>
+<nn>t</nn> = <vv>np</vv>.<cc>linspace</cc><mm>(</mm><ss>0</ss>, <nn>duration</nn>, <vv>int</vv><zz>(</zz><nn>fs</nn> * <nn>duration</nn><zz>)</zz>, <nn>endpoint</nn>=<bb>False</bb><mm>)</mm> <br>
+
+<xx># Частоты компонент сигнала</xx> <br>
+<nn>f1</nn> = <ss>1000</ss> <xx># 1 кГц</xx> <br>
+<nn>f3</nn> = <ss>3000</ss> <xx># 3 кГц</xx> <br>
+<nn>f9</nn> = <ss>9000</ss> <xx># 9 кГц</xx> <br>
+<nn>f27</nn> = <ss>27000</ss> <xx># 27 кГц</xx> <br>
+
+<xx># Амплитуды компонент сигнала</xx> <br>
+<ff>A1</ff> = <ss>1</ss> <br>
+<ff>A3</ff> = <ss>0.5</ss> <br>
+<ff>A9</ff> = <ss>0.25</ss> <br>
+<ff>A27</ff> = <ss>0.125</ss> <br>
+
+<xx># Создание исходного сигнала</xx> <br>
+<nn>signal</nn> = <ff>A1</ff> * <vv>np</vv>.<nn>sin</nn><mm>(</mm><ss>2</ss> * <vv>np</vv>.<nn>pi</nn> *<nn> f1</nn> *<nn> t</nn><mm>)</mm> + <ff>A3</ff> * <vv>np</vv>.<nn>sin</nn><mm>(</mm><ss>2</ss> * <vv>np</vv>.<nn>pi</nn> * <nn>f3</nn> *<nn> t</nn><mm>)</mm> + \ <br>
+       &nbsp &nbsp &nbsp &nbsp<ff>A9</ff> * <vv>np</vv>.<nn>sin</nn><mm>(</mm><ss>2</ss> * <vv>np</vv>.<nn>pi</nn> * <nn>f9</nn> *<nn> t</nn><mm>)</mm> + <ff>A27</ff> * <vv>np</vv>.<nn>sin</nn><mm>(</mm><ss>2</ss> * <vv>np</vv>.<nn>pi</nn> * <nn>f27</nn> *<nn> t</nn><mm>)</mm> <br>
+
+<xx># Вычисление спектра</xx> <br>
+<nn>fft_signal</nn> = <cc>fft</cc><mm>(</mm><nn>signal</nn><mm>)</mm> <br>
+<nn>freqs</nn> = <vv>np</vv>.<vv>fft</vv>.<cc>fftfreq</cc><mm>(</mm><nn>signal.size</nn>, <nn>d</nn>=<ss>1</ss>/<nn>fs</nn><mm>)</mm> <br>
+
+<xx># Фильтр нижних частот</xx> <br>
+<nn>cutoff_freq</nn> = <ss>5000</ss> <br>
+<nn>filter</nn> = <vv>np</vv>.<cc>zeros_like</cc><mm>(</mm><nn>freqs</nn><mm>)</mm> <br>
+<nn>filter</nn><mm>[</mm><vv>np</vv>.<nn>abs</nn><zz>(</zz><nn>freqs</nn><zz>)</zz> < <nn>cutoff_freq</nn><mm>]</mm> = <ss>1</ss> <br>
+<nn>filtered_fft</nn> = <nn>fft_signal</nn> * <nn>filter</nn> <br>
+<nn>filtered_signal</nn> = <cc>ifft</cc><mm>(</mm><nn>filtered_fft</nn><mm>)</mm> <br>
+
+<xx># Спектры</xx> <br>
+<nn>amplitude_spectrum</nn> = <vv>np</vv>.<nn>abs</nn><mm>(</mm><nn>fft_signal</nn><mm>)</mm> <br>
+<nn>filtered_amplitude_spectrum</nn> = <vv>np</vv>.<nn>abs</nn><mm>(</mm><nn>filtered_fft</nn><mm>)</mm> <br>
+<nn>phase_spectrum</nn> = <vv>np</vv>.<cc>angle</cc><mm>(</mm><nn>fft_signal</nn><mm>)</mm> <br>
+<nn>filtered_phase_spectrum</nn> = <vv>np</vv>.<cc>angle</cc><mm>(</mm><nn>filtered_fft</nn><mm>)</mm> <br>
+
+<xx># Построение графиков</xx> <br>
+<vv>plt</vv>.<cc>figure</cc><mm>(</mm><nn>figsize</nn>=<zz>(</zz><ss>12</ss>, <ss>8</ss><zz>)</zz><mm>)</mm> <br>
+
+<xx># Временная область</xx> <br>
+<vv>plt</vv>.<cc>subplot</cc><mm>(</mm><ss>3</ss>, <ss>2</ss>, <ss>1</ss><mm>)</mm><br>
+<vv>plt</vv>.<cc>plot</cc><mm>(</mm><nn>t</nn>, <nn>signal</nn>, <nn>label</nn>=<aa>"Исходный сигнал"</aa><mm>)</mm> <br>
+<vv>plt</vv>.<cc>title</cc><mm>(</mm><aa>"Сигнал во временной области"</aa><mm>)</mm> <br>
+<vv>plt</vv>.<cc>xlabel</cc><mm>(</mm><aa>"Время (с)"</aa><mm>)</mm> <br>
+<vv>plt</vv>.<cc>ylabel</cc><mm>(</mm><aa>"Амплитуда"</aa><mm>)</mm> <br>
+<vv>plt</vv>.<cc>legend</cc><mm>()</mm> <br>
+
+<vv>plt</vv>.<cc>subplot</cc><mm>(</mm><ss>3</ss>,<ss> 2</ss>, <ss>2</ss><mm>)</mm> <br>
+<vv>plt</vv>.<cc>plot</cc><mm>(</mm><nn>t</nn>, <nn>filtered_signal</nn>.real, <nn>label</nn>=<aa>"Отфильтрованный сигнал"</aa><mm>)</mm> <br>
+<vv>plt</vv>.<cc>xlabel</cc><mm>(</mm><aa>"Время (с)"</aa><mm>)</mm> <br>
+<vv>plt</vv>.<cc>ylabel</cc><mm>(</mm><aa>"Амплитуда"</aa><mm>)</mm> <br>
+<vv>plt</vv>.<cc>legend</cc><mm>()</mm> <br>
+
+<xx># Амплитудный спектр</xx> <br>
+<vv>plt</vv>.<cc>subplot</cc><mm>(</mm><ss>3</ss>,<ss> 2</ss>, <ss>3</ss><mm>)</mm> <br>
+<vv>plt</vv>.<cc>plot</cc><mm>(</mm><cc>fftshift</cc><zz>(</zz><nn>freqs</nn><zz>)</zz>, <cc>fftshift</cc><zz>(</zz><nn>amplitude_spectrum</nn><zz>)</zz>, <nn>label</nn>=<aa>"Исходный спектр"</aa><mm>)</mm> <br>
+<vv>plt</vv>.<cc>title</cc><mm>(</mm><aa>"Амплитудный спектр"</aa><mm>)</mm> <br>
+<vv>plt</vv>.<cc>xlabel</cc><mm>(</mm><aa>"Частота (Гц)"</aa><mm>)</mm> <br>
+<vv>plt</vv>.<cc>ylabel</cc><mm>(</mm><aa>"Амплитуда"</aa><mm>)</mm> <br>
+<vv>plt</vv>.<cc>legend</cc><mm>()</mm> <br>
+
+<vv>plt</vv>.<cc>subplot</cc><mm>(</mm><ss>3</ss>,<ss> 2</ss>, <ss>4</ss><mm>)</mm> <br>
+<vv>plt</vv>.<cc>plot</cc><mm>(</mm><cc>fftshift</cc><zz>(</zz><nn>freqs</nn><zz>)</zz>, <cc>fftshift</cc><zz>(</zz><nn>filtered_amplitude_spectrum</nn><zz>)</zz>, <nn>label</nn>=<aa>"Отфильтрованный спектр"</aa><mm>)</mm> <br>
+<vv>plt</vv>.<cc>xlabel</cc><mm>(</mm><aa>"Частота (Гц)"</aa><mm>)</mm> <br>
+<vv>plt</vv>.<cc>ylabel</cc><mm>(</mm><aa>"Амплитуда"</aa><mm>)</mm> <br>
+<vv>plt</vv>.<cc>legend</cc><mm>()</mm> <br>
+
+<xx># Фазовый спектр</xx> <br>
+<vv>plt</vv>.<cc>subplot</cc><mm>(</mm><ss>3</ss>, <ss>2</ss>, <ss>5</ss><mm>)</mm> <br>
+<vv>plt</vv>.<cc>plot</cc><mm>(</mm><cc>fftshift</cc><zz>(</zz><nn>freqs</nn><zz>)</zz>, <cc>fftshift</cc><zz>(</zz><nn>phase_spectrum</nn><zz>)</zz>, <nn>label</nn>=<aa>"Исходный спектр"</aa><mm>)</mm> <br>
+<vv>plt</vv>.<cc>title</cc><mm>(</mm><aa>"Фазовый спектр"</aa><mm>)</mm> <br>
+<vv>plt</vv>.<cc>xlabel</cc><mm>(</mm><aa>"Частота (Гц)"</aa><mm>)</mm> <br>
+<vv>plt</vv>.<cc>ylabel</cc><mm>(</mm><aa>"Фаза (рад)"</aa><mm>)</mm> <br>
+<vv>plt</vv>.<cc>legend</cc><mm>()</mm> <br>
+
+<vv>plt</vv>.<cc>subplot</cc><mm>(</mm><ss>3</ss>, <ss>2</ss>, <ss>6</ss><mm>)</mm> <br>
+<vv>plt</vv>.<cc>plot</cc><mm>(</mm><cc>fftshift</cc><zz>(</zz><nn>freqs</nn><zz>)</zz>, <cc>fftshift</cc><zz>(</zz><nn>filtered_phase_spectrum</nn><zz>)</zz>, <nn>label</nn>=<aa>"Отфильтрованный спектр"</aa><mm>)</mm> <br>
+<vv>plt</vv>.<cc>xlabel</cc><mm>(</mm><aa>"Частота (Гц)"</aa><mm>)</mm> <br>
+<vv>plt</vv>.<cc>ylabel</cc><mm>(</mm><aa>"Фаза (рад)"</aa><mm>)</mm> <br>
+<vv>plt</vv>.<cc>legend</cc><mm>()</mm> <br>
+
+<vv>plt</vv>.<cc>tight_layout</cc><mm>()</mm> <br>
+<vv>plt</vv>.<cc>show</cc><mm>()</mm></p>
+</header>
+<h2>Результат работы программы при частоте дискретизации fs = 44100 Гц:</h2>
+<center><img src = "/home/kholopovsi/Desktop/Praktika/Ashalet/img/44k.jpg" style="width: 794px; height: 578px;"></center>
+<h2>При fs = 250 Гц: </h2>
+<center><img src = "/home/kholopovsi/Desktop/Praktika/Ashalet/img/250.jpg" style="width: 790px; height: 576px;"></center>
+<header>Как видим на первой картинке, ФНЧ действительно работает и отсекает гармоники с частотой выше частоты среза. </header>
+</body>
+</html>

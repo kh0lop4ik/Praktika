@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang = "ru">
+<html>
+<head>
+<meta charset = "UTF-8">
+<link rel = "stylesheet" type="text/css" href="/home/kholopovsi/Desktop/Praktika/Ashalet/style.css">
+<title>Задание 4</title>
+<body>
+<h1>Фильтрация аудиозаписи с помощью полосового фильтра на Python</h1>
+<h2>Код программы:</h2>
+<header>
+<p><zz>import</zz> <vv>numpy</vv> <zz>as</zz> <vv>np</vv> <br>
+<zz>import</zz> <vv>matplotlib</vv>.<vv>pyplot</vv> <zz>as</zz> <vv>plt</vv> <br>
+<zz>import</zz> <vv>scipy</vv>.<vv>io</vv>.<vv>wavfile</vv> <zz>as</zz> <vv>wavfile</vv> <br>
+<zz>from</zz> <vv>scipy</vv>.<vv>signal</vv> <zz>import</zz> <cc>butter</cc>, <cc>lfilter</cc>, <cc>freqz</cc>, <cc>correlate</cc> <br>
+<zz>from</zz> <vv>scipy</vv>.<vv>fft</vv> <zz>import</zz> <cc>fft</cc>, <cc>fftfreq</cc> <br>
+
+<xx># Загружаем аудиозапись</xx> <br>
+<nn>fs</nn>, <nn>data</nn> = <vv>wavfile</vv>.<cc>read</cc><mm>(</mm><aa>'santiz.wav'</aa><mm>)</mm> <br>
+<nn>data</nn> = <nn>data</nn><mm>[</mm>:, <ss>0</ss><mm>]</mm>  <xx># Используем только один канал, если аудио стерео</xx> <br>
+
+<xx># Определяем временной интервал</xx> <br>
+<nn>t</nn> = <vv>np</vv>.<cc>arange</cc><mm>(</mm><ss>0</ss>, <cc>len</cc><zz>(</zz><nn>data</nn><zz>)</zz> / <nn>fs</nn>, <ss>1</ss> / <nn>fs</nn><mm>)</mm> <br>
+
+<xx># Определяем частоту среза фильтра</xx> <br>
+<nn>low_cutoff_freq</nn> = <ss>1000</ss>  <xx># нижняя частота среза</xx> <br>
+<nn>high_cutoff_freq</nn> = <ss>2500</ss> <xx># верхняя частота среза</xx> <br>
+
+<xx># Функция для создания полосового фильтра</xx> <br>
+<bb>def</bb> <cc>butter_bandpass</cc><mm>(</mm><nn>lowcut</nn>, <nn>highcut</nn>, <nn>fs</nn>, <nn>order</nn>=<ss>5</ss><mm>)</mm>: <br>
+    <nn>&nbsp &nbsp &nbsp &nbsp nyq</nn> = <ss>0.5</ss> * <nn>fs</nn> <br>
+    <nn>&nbsp &nbsp &nbsp &nbsp low</nn> = <nn>lowcut</nn> / <nn>nyq</nn> <br>
+    <nn>&nbsp &nbsp &nbsp &nbsp high</nn> = <nn>highcut</nn> / <nn>nyq</nn> <br>
+    <nn>&nbsp &nbsp &nbsp &nbsp b</nn>, <nn>a</nn> = <cc>butter</cc><mm>(</mm><nn>order</nn>, <zz>[</zz><nn>low</nn>, <nn>high</nn><zz>]</zz>, <nn>btype</nn>=<aa>'band'</aa>, <nn>analog</nn>=<bb>False</bb><mm>)</mm> <br>
+    <zz>&nbsp &nbsp &nbsp &nbsp return</zz> <nn>b</nn>, <nn>a</nn> <br>
+
+<xx># Создаем фильтр</xx> <br>
+<nn>b</nn>, <nn>a</nn> = <cc>butter_bandpass</cc><mm>(</mm><nn>low_cutoff_freq</nn>, <nn>high_cutoff_freq</nn>, <nn>fs</nn><mm>)</mm> <br>
+
+<xx># Применяем фильтр к сигналу</xx> <br>
+<nn>filtered_data</nn> = <cc>lfilter</cc><mm>(</mm><nn>b</nn>, <nn>a</nn>, <nn>data</nn><mm>)</mm> <br>
+
+<xx># Вычисляем АЧХ и ФЧХ фильтра</xx> <br>
+<nn>w</nn>, <nn>h</nn> = <cc>freqz</cc><mm>(</mm><nn>b</nn>, <nn>a</nn>, <nn>worN</nn>=<ss>2048</ss><mm>)</mm> <br>
+
+<xx># Вычисляем автокорреляцию сигнала</xx> <br>
+<nn>autocorr</nn> = <cc>correlate</cc><mm>(</mm><nn>data</nn>, <nn>data</nn>, <nn>mode</nn>=<aa>'full'</aa><mm>)</mm> <br>
+
+<xx># Вычисляем амплитудный и фазовый спектр сигнала</xx> <br>
+<nn>yf</nn> = <cc>fft</cc><mm>(</mm><nn>data</nn><mm>)</mm> <br>
+<nn>xf</nn> = <cc>fftfreq</cc><mm>(</mm><nn>data</nn>.<nn>size</nn>, <ss>1</ss> / <nn>fs</nn><mm>)</mm> <br>
+<bb>T</bb> = <ss>1</ss> / <nn>fs</nn>  <xx># Период дискретизации</xx> <br>
+<nn>xf</nn> = <nn>xf</nn><mm>[</mm>:<nn>data</nn>.<nn>size</nn> // <ss>2</ss><mm>]</mm>  <xx># Берем только половину спектра</xx> <br>
+<nn>yf</nn> = <nn>yf</nn><mm>[</mm>:<nn>data</nn>.<nn>size</nn> // <ss>2</ss><mm>]</mm>  <xx># Берем только половину спектра</xx> <br>
+<nn>amplitude</nn> = <vv>np</vv>.<nn>abs</nn><mm>(</mm><nn>yf</nn><mm>)</mm> / <nn>data</nn>.<nn>size</nn>  <xx># Амплитуда</xx> <br>
+<nn>phase</nn> = <vv>np</vv>.<cc>angle</cc><mm>(</mm><nn>yf</nn><mm>)</mm>  <xx># Фаза</xx> <br>
+
+<xx># Сохраняем отфильтрованную аудиозапись</xx> <br>
+<vv>wavfile</vv>.<cc>write</cc><mm>(</mm><aa>'filtered_gruz.wav'</aa>, <nn>fs</nn>, <nn>filtered_data</nn>.<cc>astype</cc><zz>(</zz><vv>np</vv>.<nn>int16</nn><zz>)</zz><mm>)</mm>  <xx># Запись в файл</xx> <br>
+
+<xx># Строим графики</xx> <br>
+<vv>plt</vv>.<cc>figure</cc><mm>(</mm><nn>figsize</nn>=<zz>(</zz><ss>12</ss>, <ss>9</ss><zz>)</zz><mm>)</mm> <br>
+
+<xx># График сигнала во временной области</xx> <br>
+<vv>plt</vv>.<cc>subplot</cc><mm>(</mm><ss>3</ss>, <ss>2</ss>, <ss>1</ss><mm>)</mm> <br>
+<vv>plt</vv>.<cc>plot</cc><mm>(</mm><nn>t</nn>, <nn>data</nn>, <nn>label</nn>=<aa>'Исходный сигнал'</aa><mm>)</mm> <br>
+<vv>plt</vv>.<cc>plot</cc><mm>(</mm><nn>t</nn>, <nn>filtered_data</nn>, <nn>label</nn>=<aa>'Отфильтрованный сигнал'</aa><mm>)</mm> <br>
+<vv>plt</vv>.<cc>xlabel</cc><mm>(</mm><aa>'Время (с)'</aa><mm>)</mm> <br>
+<vv>plt</vv>.<cc>ylabel</cc><mm>(</mm><aa>'Амплитуда'</aa><mm>)</mm> <br>
+<vv>plt</vv>.<cc>legend</cc><mm>()</mm> <br>
+
+<xx># График АЧХ (палочки)</xx> <br>
+<vv>plt</vv>.<cc>subplot</cc><mm>(</mm><ss>3</ss>, <ss>2</ss>, <ss>2</ss><mm>)</mm> <br>
+<vv>plt</vv>.<cc>stem</cc><mm>(</mm><ss>0.5</ss> * <nn>fs</nn> * <nn>w</nn> / <vv>np</vv>.<nn>pi</nn>, <ss>20</ss> * <vv>np</vv>.<nn>log10</nn><zz>(</zz><cc>abs</cc><bb>(</bb><nn>h</nn><bb>)</bb><zz>)</zz><mm>)</mm>  <xx># Используем stem() для палочек</xx> <br>
+<vv>plt</vv>.<cc>xlabel</cc><mm>(</mm><aa>'Частота (Гц)'</aa><mm>)</mm> <br>
+<vv>plt</vv>.<cc>ylabel</cc><mm>(</mm><aa>'АЧХ (дБ)'</aa><mm>)</mm> <br>
+<vv>plt</vv>.<cc>title</cc><mm>(</mm><aa>'АЧХ фильтра'</aa><mm>)</mm> <br>
+
+<xx># График ФЧХ </xx><br>
+<vv>plt</vv>.<cc>subplot</cc><mm>(</mm><ss>3</ss>, <ss>2</ss>, <ss>3</ss><mm>)</mm> <br>
+<nn>angles</nn> = <vv>np</vv>.<cc>angle</cc><mm>(</mm><nn>h</nn><mm>)</mm>  <xx># Используем np.angle() для вычисления фазы</xx> <br>
+<vv>plt</vv>.<cc>plot</cc><mm>(</mm><ss>0.5</ss> * <nn>fs</nn> * <nn>w</nn> / <vv>np</vv>.<nn>pi</nn>, <nn>angles</nn> * <ss>180</ss> / <vv>np</vv>.<nn>pi</nn><mm>)</mm> <br>
+<vv>plt</vv>.<cc>xlabel</cc><mm>(</mm><aa>'Частота (Гц)'</aa><mm>)</mm> <br>
+<vv>plt</vv>.<cc>ylabel</cc><mm>(</mm><aa>'ФЧХ (градусы)'</aa><mm>)</mm> <br>
+<vv>plt</vv>.<cc>title</cc><mm>(</mm><aa>'ФЧХ фильтра'</aa><mm>)</mm> <br>
+
+<xx># График амплитудного спектра сигнала</xx> <br>
+<vv>plt</vv>.<cc>subplot</cc><mm>(</mm><ss>3</ss>, <ss>2</ss>, <ss>4</ss><mm>)</mm> <br>
+<vv>plt</vv>.<cc>plot</cc><mm>(</mm><nn>xf</nn>, <nn>amplitude</nn><mm>)</mm> <br>
+<vv>plt</vv>.<cc>xlabel</cc><mm>(</mm><aa>'Частота (Гц)'</aa><mm>)</mm> <br>
+<vv>plt</vv>.<cc>ylabel</cc><mm>(</mm><aa>'Амплитуда'</aa><mm>)</mm> <br>
+<vv>plt</vv>.<cc>title</cc><mm>(</mm><aa>'Амплитудный спектр сигнала'</aa><mm>)</mm> <br>
+
+<xx># График фазового спектра сигнала</xx> <br>
+<vv>plt</vv>.<cc>subplot</cc><mm>(</mm><ss>3</ss>, <ss>2</ss>, <ss>5</ss><mm>)</mm> <br>
+<vv>plt</vv>.<cc>plot</cc><mm>(</mm><nn>xf</nn>, <nn>phase</nn><mm>)</mm> <br>
+<vv>plt</vv>.<cc>xlabel</cc><mm>(</mm><aa>'Частота (Гц)'</aa><mm>)</mm> <br>
+<vv>plt</vv>.<cc>ylabel</cc><mm>(</mm><aa>'Фаза (радианы)'</aa><mm>)</mm> <br>
+<vv>plt</vv>.<cc>title</cc><mm>(</mm><aa>'Фазовый спектр сигнала'</aa><mm>)</mm> <br>
+
+<xx># График автокорреляции</xx> <br>
+<vv>plt</vv>.<cc>subplot</cc><mm>(</mm><ss>3</ss>, <ss>2</ss>, <ss>6</ss><mm>)</mm> <br>
+<vv>plt</vv>.<cc>plot</cc><mm>(</mm><nn>autocorr</nn><mm>)</mm> <br>
+<vv>plt</vv>.<cc>xlabel</cc><mm>(</mm><aa>'Задержка (сэмплы)'</aa><mm>)</mm> <br>
+<vv>plt</vv>.<cc>ylabel</cc><mm>(</mm><aa>'Автокорреляция'</aa><mm>)</mm> <br>
+<vv>plt</vv>.<cc>title</cc><mm>(</mm><aa>'Автокорреляция'</aa><mm>)</mm> <br>
+
+<vv>plt</vv>.<cc>tight_layout</cc><mm>()</mm> <br>
+<vv>plt</vv>.<cc>show</cc><mm>()</mm></p>
+</header>
+<h2>Результат работы программы:</h2>
+<center><img src = "/home/kholopovsi/Desktop/Praktika/Ashalet/img/polosa.jpg" style="width: 790px; height: 642px;"></center>
+<header>Для более наглядного ознакомления с программой, прослушайте аудиозаписи: </header>
+<center><div class="Knopka">
+<ul>
+<li><a href="https://youtu.be/1_S3ddX_u58">Прослушать</li></ul></center>
+</body>
+</html>
