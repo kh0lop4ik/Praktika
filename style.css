@@ -1,7 +1,5 @@
-{
-    margin:0;
-    padding:0;
-}
+@media screen and (max-width: 1920px){
+
 body{
     background:black;
     color:white;
@@ -75,6 +73,7 @@ ff{
 }
 .Knopka a:hover{
     color:#26C4FF;
+}
 }
 @media screen and (max-width: 600px) {
     body{
