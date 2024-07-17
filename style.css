@@ -76,3 +76,8 @@ ff{
 .Knopka a:hover{
     color:#26C4FF;
 }
+@media screen and (max-width: 576) {
+    h1{
+        color:red;
+    }
+}
