@@ -31,7 +31,7 @@ h1{
 h2 {
     display: flex;
     justify-content: center;
-    font-size: 30px;
+    font-size: 30px; 
 }
 .video-bg {
     height: 100vh;
