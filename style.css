@@ -63,17 +63,5 @@ ss{
 ff{
     color: cyan;
 }
-.Knopka li{
-    display:inline-block;
-    margin-right:40px;
-}
-.Knopka a{
-    font-family:arial;
-    font-size:25px;
-    color: white;
-    text-decoration: none;
-}
-.Knopka a:hover{
-    color:#26C4FF;
-}
+
 
